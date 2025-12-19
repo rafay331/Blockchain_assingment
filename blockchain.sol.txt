@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract StudentManager {
+
+    struct Student {
+        uint256 id;
+        string name;
+        uint256 age;
+        string department;
+    }
+
+    mapping(uint256 => Student) private students;
+    mapping(uint256 => bool) private exists;
+
+    // Add a new student (only if id not already used)
+    function addStudent(
+        uint256 _id,
+        string calldata _name,
+        uint256 _age,
+        string calldata _department
+    ) external {
+        require(!exists[_id], "Student already exists");
+        require(_id != 0, "Invalid id");
+
+        students[_id] = Student({
+            id: _id,
+            name: _name,
+            age: _age,
+            department: _department
+        });
+
+        exists[_id] = true;
+    }
+
+    // Update an existing student (only if student exists)
+    function updateStudent(
+        uint256 _id,
+        string calldata _name,
+        uint256 _age,
+        string calldata _department
+    ) external {
+        require(exists[_id], "Student does not exist");
+
+        Student storage s = students[_id];
+        s.name = _name;
+        s.age = _age;
+        s.department = _department;
+    }
+
+    // Retrieve student by id (only if exists)
+    function getStudent(uint256 _id)
+        external
+        view
+        returns (uint256 id, string memory name, uint256 age, string memory department)
+    {
+        require(exists[_id], "Student does not exist");
+
+        Student memory s = students[_id];
+        return (s.id, s.name, s.age, s.department);
+    }
+}
